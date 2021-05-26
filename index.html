@@ -9,41 +9,72 @@
   <title>My Chart.js Chart</title>
 </head>
 <body>
-  <div class="container">
-    <canvas id="myChart"></canvas>
-  </div>
+  <canvas id="myChart" width="32000"></canvas>
+
 
   <script>
+  const equipment_names = [];
+  const dmg_array = [];
+
+  ChartIt();
+
+  async function GetData(){
+    average_dmg = [];
+    equipment_name = [];
+
+    const response = await fetch('autoplay_log.json');
+    const data = await response.json();
+    //console.log(data.equipment_data);
+
+    data.equipment_data.forEach(ed =>{
+      equipment_names.push(ed.equipment_name);
+      dmg_array.push(ed.average_dmg_taken);
+    })
+
+
+  }
+
+  async function ChartIt(){
+    await GetData();
     let myChart = document.getElementById('myChart').getContext('2d');
+    let data;
+
 
     // Global Options
     Chart.defaults.global.defaultFontFamily = 'Lato';
-    Chart.defaults.global.defaultFontSize = 18;
+    Chart.defaults.global.defaultFontSize = 10;
     Chart.defaults.global.defaultFontColor = '#777';
 
     let massPopChart = new Chart(myChart, {
       type:'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
       data:{
-        labels:['BITBOYS', 'Worcester', 'Springfield', 'Lowell', 'Cambridge', 'New Bedford', 'BEEKEEPERS'],
+        labels: equipment_names,
+
         datasets:[{
           label:'Dmg Per Run',
-          data:[
-            249,
-            245,
-            153,
-            519,
-            162,
-            950,
-            111
-          ],
-          backgroundColor:'red',
-          borderWidth:1,
+          data:dmg_array,
+          backgroundColor:'orange',
+          borderWidth:0,
           borderColor:'#777',
           hoverBorderWidth:3,
           hoverBorderColor:'#000'
+
         }]
       },
       options:{
+        scaleShowValues: true,
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              autoSkip: false
+            }
+          }]
+        },
         title:{
           display:true,
           text:'Dogwitch Equipment',
@@ -57,6 +88,7 @@
           }
         },
         layout:{
+
           padding:{
             left:0,
             right:0,
@@ -66,9 +98,11 @@
         },
         tooltips:{
           enabled:true
-        }
+        },
       }
     });
+  }
+
   </script>
 </body>
 </html>
